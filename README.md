@@ -1,4 +1,3 @@
-
 # JARVIS-Voice-Assistant-System
 
 JARVIS is a Python-based voice assistant that can interact with the user through speech recognition, perform tasks like opening applications, searching on Google or Wikipedia, playing music randomly, telling jokes, and having small talk.
@@ -44,6 +43,15 @@ This project uses speech recognition and text-to-speech (TTS) to provide a hands
 
    ```bash
    python jarvis.py
+   ```
+
+   ## For exe file conversion:
+
+
+   ```
+   pip install pyinstaller
+   pyinstaller --onefile jarvis.py
+
    ```
 
 ## 👨‍💻 Author

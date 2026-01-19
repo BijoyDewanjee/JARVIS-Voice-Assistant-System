@@ -1,15 +1,16 @@
-import speech_recognition as sr
-import pyttsx3
+import speech_recognition as sr 
+import pyttsx3 
 import logging 
-import os
-import datetime
-import os
-import wikipedia
-import webbrowser
-import random
-import subprocess
+import os 
+import datetime 
+import wikipedia 
+import webbrowser 
+import random 
+import subprocess 
+import google.generativeai as genai 
 
-#logging configuration
+
+# Logging configuration 
 LOG_DIR = "logs"
 LOG_FILE_NAME = "application.log"
 
@@ -23,33 +24,31 @@ logging.basicConfig(
     level= logging.INFO
 )
 
-# Activating Voice from Our System
 
-engine=pyttsx3.init("sapi5")
+
+# Activating voice from our system 
+engine = pyttsx3.init("sapi5") 
 engine.setProperty('rate', 170)
 voices = engine.getProperty("voices")
-engine.setProperty('voice',voices[0].id)
+engine.setProperty('voice', voices[0].id)
 
-# This  is speak function
 
+# This is speak function
 def speak(text):
-    """
-    This function coverts text to voice
+    """This function converts text to voice
 
     Args:
         text
     returns:
         voice
-    
-    
     """
     engine.say(text)
-    engine.runAndWait()  # after speak it automatic closed
-
-#speak("Hello My name is Bijoy")
+    engine.runAndWait()   # after speak it automatic closed
 
 
-# This function recognize the speech and convert it to text
+
+# This function recognize the speech and convert it to text 
+
 def takeCommand():
     """This function takes command & recognize
 
@@ -57,25 +56,25 @@ def takeCommand():
         text as query
     """
     r = sr.Recognizer()
-    with sr.Microphone() as source: # Microphone Initialize
+    with sr.Microphone() as source:    # # Microphone Initialize
         print("Listening...")
         r.pause_threshold = 1
         audio = r.listen(source)
-        
 
-        ## Now Convert audio to text
-        try:
-             print("Recognizing....")
-             query = r.recognize_google(audio, language='en-in')
-             print(f"User said: {query}\n")
+    try:
+        print("Recognizing...") 
+        query = r.recognize_google(audio, language='en-in')
+        print(f"User said: {query}\n")
 
-        except Exception as e:
-             logging.info(e)
-             print("Say that again please")
-             return "None"
-        
-        return query
+    except Exception as e:
+        logging.info(e)
+        print("Say that again please")
+        return "None"
     
+    return query
+
+
+
 
 def greeting():
     hour = (datetime.datetime.now().hour)
@@ -89,10 +88,11 @@ def greeting():
 
     speak("I am Jarvis. Please tell me how may I help you today?")
 
-greeting()
+
+
 
 def play_music():
-    music_dir = "D:\\Inception Python\\project\\JARVIS-Voice-Assistant-System\\music"   # <-- change this to your music folder
+    music_dir = "D:\Inception Python\project\JARVIS-Voice-Assistant-System\music"   # <-- change this to your music folder
     try:
         songs = os.listdir(music_dir)
         if songs:
@@ -107,28 +107,44 @@ def play_music():
 
 
 
+
+def gemini_model_response(user_input):
+    GEMINI_API_KEY = "AIzaSyBJ8sjGuwBtfaHeCtk3aU2fB_llySez5SM"
+    genai.configure(api_key=GEMINI_API_KEY) 
+    model = genai.GenerativeModel("gemini-2.5-flash") 
+    prompt = f"Your name is JARVIS, You act like JARVIS. Answar the provided question in short, Question: {user_input}"
+    response = model.generate_content(prompt)
+    result = response.text
+
+    return result
+
+
+
+
+greeting()
+
 while True:
     query = takeCommand().lower()
     print(query)
-    # speak(query)
+
     if "your name" in query:
         speak("My name is Jarvis")
         logging.info("User asked for assistant's name.")
-    
+
     elif "time" in query:
         strTime = datetime.datetime.now().strftime("%H:%M:%S")
         speak(f"Sir the time is {strTime}")
         logging.info("User asked for current time.")
 
+    
     # Small talk
-
     elif "how are you" in query:
         speak("I am functioning at full capacity sir!")
         logging.info("User asked about assistant's well-being.")
 
     
     elif "who made you" in query:
-        speak("I was created by Bijoy Dewanjee sir, a brilliant mind!")
+        speak("I was created by Bijoy Dewanjee, a brilliant mind!")
         logging.info("User asked about assistant's creator.")
 
     
@@ -136,14 +152,15 @@ while True:
         speak("It's my pleasure sir. Always happy to help.")
         logging.info("User expressed gratitude.")
 
-    #Open Google
+    # Open google 
 
     elif "open google" in query:
         speak("ok sir. please type here what do you want to read")
         webbrowser.open("google.com")
         logging.info("User requested to open Google.")
 
-        # Calculator
+    
+    # Calculator
     elif "open calculator" in query or "calculator" in query:
         speak("Opening calculator")
         subprocess.Popen("calc.exe")
@@ -156,8 +173,8 @@ while True:
         subprocess.Popen("notepad.exe")
         logging.info("User requested to open Notepad.")
 
-       # Command Prompt
-       
+    
+    # Command Prompt
     elif "open terminal" in query or "open cmd" in query:
         speak("Opening Command Prompt terminal")
         subprocess.Popen("cmd.exe")
@@ -177,9 +194,9 @@ while True:
         query = query.replace("youtube", "")
         webbrowser.open(f"https://www.youtube.com/results?search_query={query}")
         logging.info("User requested to search on YouTube.")
-    
-    # Facebook
-        
+
+    #Facebook
+
     elif "open facebook" in query:
         speak("ok sir. opening facebook")
         webbrowser.open("facebook.com")
@@ -192,17 +209,9 @@ while True:
         webbrowser.open("github.com")
         logging.info("User requested to open GitHub.")
 
-# wikipedia
-    elif "wikipedia" in query:
-        speak("Searching Wikipedia...")
-        query = query.replace("wikipedia", "")
-        results = wikipedia.summary(query, sentences=2)
-        speak("According to Wikipedia")
-        speak(results)
-        logging.info("User requested information from Wikipedia.")    
 
-    #jokes
-
+    
+    # Jokes
     elif "joke" in query:
         jokes = [
             "Why don't programmers like nature? Too many bugs.",
@@ -212,22 +221,30 @@ while True:
         speak(random.choice(jokes))
         logging.info("User requested a joke.")
 
+    # Wikipedia
+
+    elif "wikipedia" in query:
+        speak("Searching Wikipedia...")
+        query = query.replace("wikipedia", "")
+        results = wikipedia.summary(query, sentences=2)
+        speak("According to Wikipedia")
+        speak(results)
+        logging.info("User requested information from Wikipedia.")
+
+    # Music
+
     elif "play music" in query or "music" in query:
         play_music()
 
-    # For exit
-
+    # For Exit
+    
     elif "exit" in query:
         speak("Thank you for your time sir. Have a great day ahead!")
         logging.info("User exited the program.")
         exit()
 
     else:
-        speak("I am sorry, I can't help you with that.")
-        logging.info("User asked for an unsupported command.")
-
-
-      
-
-        
+        response = gemini_model_response(query)
+        speak(response)
+        logging.info("User asked for others question")
 
